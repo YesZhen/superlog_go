@@ -1,0 +1,101 @@
+package main
+
+import (
+	"fmt"
+	//"reflect"
+	"superlog"
+	"time"
+	"sync"
+)
+
+
+//Batch write logs
+func BatchWrite(batch uint64, r *superlog.Ring, msgs []superlog.Msg, wg *sync.WaitGroup) {
+	//defer wg.Done()
+	t1 := time.Now().UnixNano() / int64(time.Microsecond)
+    superlog.Write(r,msgs,batch)
+	t2 := time.Now().UnixNano() / int64(time.Microsecond)
+	//fmt.Printf("time consumes by %d writes: %d, batch start time: %d, batch end time: %d\n",batch, t2-t1, t1, t2)
+	fmt.Printf("time consumes by %d writes: %d\n",batch, t2-t1)
+	wg.Done()
+}
+func goroutine_write(r *superlog.Ring, wg *sync.WaitGroup) {
+	superlog.Log(r,"abc")
+	wg.Done()
+}
+func main() {
+	fmt.Println("log bench, unit microsecond")
+	r, err := superlog.Open("/dev/shm/superlog.ring",1)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	/*
+	//create Msg struct array
+	msgs := superlog.CreateMsg()
+	//append Msg to the array
+	msgs, err = superlog.AppendMsg(msgs,"asdfasdf")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	*/
+	
+	//single write
+	t1 := time.Now().UnixNano()
+	//superlog.Write(r, msgs, 1)
+	superlog.Log(r,"abc")
+	t2 := time.Now().UnixNano()
+	fmt.Println("time consumes by one write",t2-t1)
+	
+	var wg sync.WaitGroup
+	for i := 0; i < 20; i++ {
+		wg.Add(1)
+		go goroutine_write(r,&wg)
+	}
+	wg.Wait()
+
+	/*
+	for i := 0; i < 10240; i++ {
+		superlog.Write(r, msgs, 1)
+	}
+	*/
+	
+	/*
+	//batch write
+	var wg sync.WaitGroup
+	var n int = 4
+	var batch uint64 = 1024
+	//append message to the struct
+
+	for i := 0; i < int(batch); i++ {
+		msgs, err = superlog.AppendMsg(msgs,int64(i+1),"asdfasdf")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
+	t1 := time.Now().UnixNano() / int64(time.Microsecond)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go BatchWrite(batch, r, msgs, &wg)	
+	}
+	wg.Wait()
+	t2 := time.Now().UnixNano() / int64(time.Microsecond)
+	fmt.Println("Wait Done",t2)
+	fmt.Println("time consumes by multithread batch write",t2-t1)
+	*/
+
+	
+	//read log
+	//msgs_read := superlog.Read(r, 10)
+	//fmt.Println(msgs_read)
+}
+// 4 channels
+// 10k each
+// total 40k
+// focus on correctness first
+// 4 process? instead of 4 threads
+// OptaneStudy/src/testscript/parse_bw.py /

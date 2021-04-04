@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+	"superlog"
+)
+
+
+func main() {
+
+	r, err := superlog.Open("/dev/shm/superlog",1)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	superlog.PrintRing(r)
+
+}
+// 4 channels
+// 10k each
+// total 40k
+// focus on correctness first
+// 4 process? instead of 4 threads
+// OptaneStudy/src/testscript/parse_bw.py /
