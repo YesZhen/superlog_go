@@ -1,13 +1,65 @@
 package superlog_go
 
-import "testing"
+import (
+	"testing"
 
-func TestLog(t *testing.T) {
-	Log("Yep")
+	// "github.com/YesZhen/superlog_go/superlog"
+)
+
+// func TestLog(t *testing.T) {
+// 	Log("Yep")
+// }
+
+// func TestRead(t *testing.T) {
+// 	m := Read()
+// 	t.Log(m.Name)
+// 	t.Log(m.Timestamp)
+// }
+
+// func TestBeginEnd(t *testing.T) {
+// 	testBeginEnd()
+
+// 	m := Read()
+// 	t.Log(m.Name)
+// 	t.Log(m.Data)
+// 	t.Log(m.Timestamp)
+
+// 	m = Read()
+// 	t.Log(m.Name)
+// 	t.Log(m.Data)
+// 	t.Log(m.Timestamp)
+
+// 	m = Read()
+// 	t.Log(m.Name)
+// 	t.Log(m.Data)
+// 	t.Log(m.Timestamp)
+
+// }
+
+func testBeginEnd() {
+	defer LogEnd(LogBegin("test"))
 }
 
-func TestRead(t *testing.T) {
+func TestInfof(t *testing.T) {
+	Infof("%s, %s, %s, %s", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "cccccccccccccccccccccccccccccc", "dddddddddddddddddddddddddddddd")
+
 	m := Read()
 	t.Log(m.Name)
+	t.Log(m.Data)
+	t.Log(m.Timestamp)
+
+	m = Read()
+	t.Log(m.Name)
+	t.Log(m.Data)
+	t.Log(m.Timestamp)
+
+	m = Read()
+	t.Log(m.Name)
+	t.Log(m.Data)
+	t.Log(m.Timestamp)
+
+	m = Read()
+	t.Log(m.Name)
+	t.Log(m.Data)
 	t.Log(m.Timestamp)
 }

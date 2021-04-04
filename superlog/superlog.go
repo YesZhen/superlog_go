@@ -108,7 +108,8 @@ func InitDefault() (*Ring, error) {
 func Init(path string, flags uint) (*Ring, error) {
 
 	_, err := os.Stat(path)
-	exists := os.IsNotExist(err)
+	exists := !os.IsNotExist(err)
+
 
 	if exists && (flags & SUPERLOG_OVERRIDE) != 0 {
 		if err = os.Remove(path); err != nil {
@@ -171,7 +172,7 @@ func Write(r *Ring, msgs []Msg, n uint64) {
 }
 
 // Write a single log
-func Log(r *Ring, data string) {
+func Log(r *Ring, data string) Msg {
 
 	start := atomic.AddUint64(&r.tail, 1) - 1
 	start &= r.max_len - 1
@@ -181,11 +182,12 @@ func Log(r *Ring, data string) {
 	r.msgs[start].Pid = int64(os.Getpid())
 	r.msgs[start].Tid = gid.Get()
 	copy(r.msgs[start].Data[:], data)
-
+	return r.msgs[start]
 }
 
 
 func Read(r *Ring, n uint64) ([]Msg){
+	
 	n = uint64(Min(int64((r.tail + r.max_len - r.head) & (r.max_len - 1)), int64(n)))
 	msgs := make([]Msg, n);
 	//alloc slots, __sync_fetch_and_add
